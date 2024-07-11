@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Villa.Domain.Entities
 {
-    public class Villa
+    public class Hotel
     {
         public int Id { get; set; }
         public required string Name { get; set; }
@@ -17,8 +17,8 @@ namespace Villa.Domain.Entities
         public int Area { get; set; }
         public int Occupancy { get; set; }
         public string? ImageUrl { get; set; }
-        public DateTime? CreatedDate { get; set; }
-        public DateTime? UpdatedDate { get;set; }
+        public DateTime? Created_Date { get; set; }
+        public DateTime? Updated_Date { get;set; }
 
     }
 }
