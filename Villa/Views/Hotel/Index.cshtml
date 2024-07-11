@@ -1,6 +1,48 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
-<h1>Hotel List</h1>
+﻿@model IEnumerable<Villa.Domain.Entities.Hotel>
+<div class="w-100 card border-0 p-4">
+    <div class="card-header bg-success bg-gradient ml-0 py-3">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2 class="text-white py-2">Hotel List</h2>
+            </div>
+        </div>
+    </div>
+    <div class="card-body border p-4">
+        <div class="row pb-3">
+            <div class="col-6 offset-6 text-end">
+                <a asp-controller="Hotel" asp-action="" class="btn btn-secondary">
+                    <i class="bi bi-patch-plus"></i>   Add new Hotel
+                    </a>
+            </div>
+        </div>
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>
+                        Name
+                    </th>
+                    <th>
+                        Price
+                    </th>
+                    <th>
+                        Area
+                    </th>
+                    <th>
+                        Occupancy
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var obj in Model)
+                {
+                    <tr>
+                        <td>@obj.Name</td>
+                        <td>@obj.Price</td>
+                        <td>@obj.Area</td>
+                        <td>@obj.Occupancy</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
