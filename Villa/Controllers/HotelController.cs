@@ -34,6 +34,7 @@ namespace Villa.Controllers
             {
             _db.Hotels.Add(hotel);
             _db.SaveChanges();
+            TempData["success"] = "Hotel was created successfully.";
             return RedirectToAction("Index","Hotel");
             }
             return View(hotel);
@@ -56,6 +57,7 @@ namespace Villa.Controllers
             {
                 _db.Hotels.Update(hotel);
                 _db.SaveChanges();
+                TempData["success"] = "Hotel was updated successfully.";
                 return RedirectToAction("Index", "Hotel");
             }
             return View(hotel);
@@ -79,8 +81,10 @@ namespace Villa.Controllers
             {
                 _db.Hotels.Remove(objfromDB);
                 _db.SaveChanges();
+                TempData["success"] = "Hotel was deleted successfully.";
                 return RedirectToAction("Index", "Hotel");
             }
+            TempData["error"] = "Hotel couldn't be deleted.";
             return View(hotel);
         }
     }
