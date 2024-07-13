@@ -1,0 +1,48 @@
+﻿@model HotelNumberVM
+
+<div class="w-100 card border-0 p-4">
+    <div class="card-header bg-success bg-gradient ml-0 py-3">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2 class="text-white py-2">Delete Hotel Number</h2>
+            </div>
+        </div>
+    </div>
+    <div class="card-body border p-4">
+        <form method="post" class="row">
+            <input asp-for="HotelNumber.Hotel_Nr" hidden />
+            <div class="p-3">
+                <div class="form-floating py-1 col-12">
+                    <input asp-for="@Model.HotelNumber.HotelId" disabled class="form-control border shadow" />
+                    <label asp-for="HotelNumber.HotelId" class="ms-2"></label>
+                </div>
+                <div class="form-floating py-1 col-12">
+                    <input asp-for="HotelNumber.Hotel_Nr" disabled class="form-control border shadow" />
+                    <label asp-for="HotelNumber.Hotel_Nr" class="ms-2"></label>
+                </div>
+                <div class="form-floating py-1 col-12">
+                    <input asp-for="HotelNumber.SpecialDetails" disabled class="form-control border shadow" />
+                    <label asp-for="HotelNumber.SpecialDetails" class="ms-2"></label>
+                </div>
+                <div class="row pt-2">
+                    <div class="col-6 col-md-3">
+                        <button type="submit" class="btn btn-danger w-100">
+                            <i class="bi bi-trash-fill"> Delete</i>
+                        </button>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <a asp-controller="HotelNumber" asp-action="Index" class="btn btn-secondary w-100">
+                            <i class="bi bi-x-circle"> Cancel</i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+}
