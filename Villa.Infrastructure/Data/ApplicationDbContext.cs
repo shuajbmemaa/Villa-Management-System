@@ -16,6 +16,8 @@ namespace Villa.Infrastructure.Data
 
         public DbSet<Hotel> Hotels { get; set; }
 
+        public DbSet<HotelNumber> HotelNumbers { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             //base.OnModelCreating(modelBuilder);
@@ -40,6 +42,39 @@ namespace Villa.Infrastructure.Data
                     Area = 80
                 }
             );
+            modelBuilder.Entity<HotelNumber>().HasData(
+                new HotelNumber
+                {
+                    Hotel_Nr = 1,
+                    HotelId=1
+                },
+                 new HotelNumber
+                 {
+                     Hotel_Nr = 2,
+                     HotelId = 1
+                 },
+                 new HotelNumber
+                 {
+                     Hotel_Nr = 4,
+                     HotelId = 1
+                 },
+                 new HotelNumber
+                 {
+                     Hotel_Nr = 5,
+                     HotelId = 2
+                 },
+                 new HotelNumber
+                 {
+                     Hotel_Nr = 6,
+                     HotelId = 2
+                 },
+                 new HotelNumber
+                 {
+                     Hotel_Nr = 7,
+                     HotelId = 3
+                 }
+
+                );
         }
 
     }
