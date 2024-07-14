@@ -15,8 +15,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Villa.Application\Villa.Application.csproj" />
-    <ProjectReference Include="..\Villa.Domain\Villa.Domain.csproj" />
     <ProjectReference Include="..\Villa.Infrastructure\Villa.Infrastructure.csproj" />
   </ItemGroup>
 
