@@ -7,15 +7,15 @@ namespace Villa.Controllers
 {
     public class HotelController : Controller
     {
-        private readonly IHotelRepository _hotelRepo;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public HotelController(IHotelRepository hotelRepository)
+        public HotelController(IUnitOfWork unitOfWork)
         {
-            _hotelRepo = hotelRepository;           
+            _unitOfWork = unitOfWork;           
         }
         public IActionResult Index()
         {
-            var hotels = _hotelRepo.GetAll();
+            var hotels = _unitOfWork.Hotel.GetAll();
             return View(hotels);
         }
 
@@ -33,8 +33,8 @@ namespace Villa.Controllers
             }
             if(ModelState.IsValid)
             {
-            _hotelRepo.Add(hotel);
-            _hotelRepo.Save();
+            _unitOfWork.Hotel.Add(hotel);
+            _unitOfWork.Save();
             TempData["success"] = "Hotel was created successfully.";
             return RedirectToAction("Index","Hotel");
             }
@@ -43,7 +43,7 @@ namespace Villa.Controllers
 
         public IActionResult Update(int hotelId)//qysh e ke lan n Index.cshtml te asp-action duhet me kan edhe emri i metodes , poashtu cka pranon si parameter duhet me kan se cka i ke caktu ti te asp-route-...
         {
-            Hotel? hotel=_hotelRepo.Get(u=>u.Id == hotelId);
+            Hotel? hotel=_unitOfWork.Hotel.Get(u=>u.Id == hotelId);
             if(hotel == null)
             {
                 return RedirectToAction("Error","Home");
@@ -56,8 +56,8 @@ namespace Villa.Controllers
         {
             if (ModelState.IsValid && hotel.Id >0)
             {
-                _hotelRepo.Update(hotel);
-                _hotelRepo.Save();
+                _unitOfWork.Hotel.Update(hotel);
+                _unitOfWork.Save();
                 TempData["success"] = "Hotel was updated successfully.";
                 return RedirectToAction("Index", "Hotel");
             }
@@ -66,7 +66,7 @@ namespace Villa.Controllers
 
         public IActionResult Delete(int hotelId)//qysh e ke lan n Index.cshtml te asp-action duhet me kan edhe emri i metodes , poashtu cka pranon si parameter duhet me kan se cka i ke caktu ti te asp-route-...
         {
-            Hotel? hotel = _hotelRepo.Get(h => h.Id == hotelId);
+            Hotel? hotel = _unitOfWork.Hotel.Get(h => h.Id == hotelId);
             if (hotel == null)
             {
                 return RedirectToAction("Error", "Home");
@@ -77,11 +77,11 @@ namespace Villa.Controllers
         [HttpPost]
         public IActionResult Delete(Hotel hotel)
         {
-            Hotel? objfromDB=_hotelRepo.Get(h=>h.Id == hotel.Id);
+            Hotel? objfromDB= _unitOfWork.Hotel.Get(h=>h.Id == hotel.Id);
             if (objfromDB is not null)
             {
-                _hotelRepo.Remove(objfromDB);
-                _hotelRepo.Save();
+                _unitOfWork.Hotel.Remove(objfromDB);
+                _unitOfWork.Save();
                 TempData["success"] = "Hotel was deleted successfully.";
                 return RedirectToAction("Index", "Hotel");
             }

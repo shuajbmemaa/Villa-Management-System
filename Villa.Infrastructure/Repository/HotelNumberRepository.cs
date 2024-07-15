@@ -1,8 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Villa.Application.Common.Interfaces;
@@ -11,18 +9,18 @@ using Villa.Infrastructure.Data;
 
 namespace Villa.Infrastructure.Repository
 {
-    public class HotelRepository : Repository<Hotel>, IHotelRepository
+    public class HotelNumberRepository : Repository<HotelNumber>, IHotelNumberRepository
     {
         private readonly ApplicationDbContext _db;
 
-        public HotelRepository(ApplicationDbContext db) : base(db)
-        { 
-            _db = db;
-        } 
-
-        public void Update(Hotel hotel)
+        public HotelNumberRepository(ApplicationDbContext db) : base(db)
         {
-            _db.Update(hotel);
+            _db = db;
+        }
+
+        public void Update(HotelNumber hotelNumber)
+        {
+            _db.Update(hotelNumber);
         }
     }
 }
