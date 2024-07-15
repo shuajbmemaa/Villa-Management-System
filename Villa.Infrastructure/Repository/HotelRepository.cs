@@ -11,57 +11,14 @@ using Villa.Infrastructure.Data;
 
 namespace Villa.Infrastructure.Repository
 {
-    public class HotelRepository : IHotelRepository
+    public class HotelRepository : Repository<Hotel>, IHotelRepository
     {
         private readonly ApplicationDbContext _db;
 
-        public HotelRepository(ApplicationDbContext db)
-        {
+        public HotelRepository(ApplicationDbContext db) : base(db)
+        { 
             _db = db;
-        }
-        public void Add(Hotel hotel)
-        {
-            _db.Add(hotel);
-        }
-
-        public Hotel Get(Expression<Func<Hotel, bool>> filter, string? includeProperties = null)
-        {
-            IQueryable<Hotel> query = _db.Set<Hotel>();
-            if (filter != null)
-            {
-                query = query.Where(filter);
-            }
-            if (!string.IsNullOrEmpty(includeProperties))
-            {
-                foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                {
-                    query = query.Include(includeProp);
-                }
-            }
-            return query.FirstOrDefault();
-        }
-
-        public IEnumerable<Hotel> GetAll(Expression<Func<Hotel, bool>>? filter = null, string? includeProperties = null)
-        {
-            IQueryable<Hotel> query = _db.Set<Hotel>();
-            if(filter != null)
-            {
-                query = query.Where(filter);
-            }
-            if(!string.IsNullOrEmpty(includeProperties))
-            {
-                foreach(var includeProp  in includeProperties.Split(new char[] {','},StringSplitOptions.RemoveEmptyEntries))
-                {
-                    query=query.Include(includeProp);
-                }
-            }
-            return query.ToList();
-        }
-
-        public void Remove(Hotel hotel)
-        {
-            _db.Remove(hotel);
-        }
+        } 
 
         public void Save()
         {
