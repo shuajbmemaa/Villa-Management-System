@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Villa.Application.Common.Interfaces;
 using Villa.Domain.Entities;
 using Villa.Infrastructure.Data;
 
@@ -6,15 +7,15 @@ namespace Villa.Controllers
 {
     public class HotelController : Controller
     {
-        private readonly ApplicationDbContext _db;
+        private readonly IHotelRepository _hotelRepo;
 
-        public HotelController(ApplicationDbContext db)
+        public HotelController(IHotelRepository hotelRepository)
         {
-            _db = db;           
+            _hotelRepo = hotelRepository;           
         }
         public IActionResult Index()
         {
-            var hotels = _db.Hotels.ToList();
+            var hotels = _hotelRepo.GetAll();
             return View(hotels);
         }
 
@@ -32,8 +33,8 @@ namespace Villa.Controllers
             }
             if(ModelState.IsValid)
             {
-            _db.Hotels.Add(hotel);
-            _db.SaveChanges();
+            _hotelRepo.Add(hotel);
+            _hotelRepo.Save();
             TempData["success"] = "Hotel was created successfully.";
             return RedirectToAction("Index","Hotel");
             }
@@ -42,7 +43,7 @@ namespace Villa.Controllers
 
         public IActionResult Update(int hotelId)//qysh e ke lan n Index.cshtml te asp-action duhet me kan edhe emri i metodes , poashtu cka pranon si parameter duhet me kan se cka i ke caktu ti te asp-route-...
         {
-            Hotel? hotel=_db.Hotels.FirstOrDefault(h => h.Id == hotelId);
+            Hotel? hotel=_hotelRepo.Get(u=>u.Id == hotelId);
             if(hotel == null)
             {
                 return RedirectToAction("Error","Home");
@@ -55,8 +56,8 @@ namespace Villa.Controllers
         {
             if (ModelState.IsValid && hotel.Id >0)
             {
-                _db.Hotels.Update(hotel);
-                _db.SaveChanges();
+                _hotelRepo.Update(hotel);
+                _hotelRepo.Save();
                 TempData["success"] = "Hotel was updated successfully.";
                 return RedirectToAction("Index", "Hotel");
             }
@@ -65,7 +66,7 @@ namespace Villa.Controllers
 
         public IActionResult Delete(int hotelId)//qysh e ke lan n Index.cshtml te asp-action duhet me kan edhe emri i metodes , poashtu cka pranon si parameter duhet me kan se cka i ke caktu ti te asp-route-...
         {
-            Hotel? hotel = _db.Hotels.FirstOrDefault(h => h.Id == hotelId);
+            Hotel? hotel = _hotelRepo.Get(h => h.Id == hotelId);
             if (hotel == null)
             {
                 return RedirectToAction("Error", "Home");
@@ -76,11 +77,11 @@ namespace Villa.Controllers
         [HttpPost]
         public IActionResult Delete(Hotel hotel)
         {
-            Hotel? objfromDB=_db.Hotels.FirstOrDefault(h=>h.Id == hotel.Id);
+            Hotel? objfromDB=_hotelRepo.Get(h=>h.Id == hotel.Id);
             if (objfromDB is not null)
             {
-                _db.Hotels.Remove(objfromDB);
-                _db.SaveChanges();
+                _hotelRepo.Remove(objfromDB);
+                _hotelRepo.Save();
                 TempData["success"] = "Hotel was deleted successfully.";
                 return RedirectToAction("Index", "Hotel");
             }
