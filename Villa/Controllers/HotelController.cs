@@ -8,10 +8,12 @@ namespace Villa.Controllers
     public class HotelController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public HotelController(IUnitOfWork unitOfWork)
+        public HotelController(IUnitOfWork unitOfWork,IWebHostEnvironment webHostEnvironment)
         {
-            _unitOfWork = unitOfWork;           
+            _unitOfWork = unitOfWork;      
+            _webHostEnvironment = webHostEnvironment;
         }
         public IActionResult Index()
         {
@@ -33,6 +35,20 @@ namespace Villa.Controllers
             }
             if(ModelState.IsValid)
             {
+                if(hotel.Image != null)
+                {
+                    string fileName=Guid.NewGuid().ToString()+ Path.GetExtension(hotel.Image.FileName);
+                    string imagePath = Path.Combine(_webHostEnvironment.WebRootPath, @"Images\Hotel_Images");
+
+                    using (var fileStream = new FileStream(Path.Combine(imagePath, fileName), FileMode.Create))
+                        hotel.Image.CopyTo(fileStream);
+
+                    hotel.ImageUrl = @"\Images\Hotel_Images\" + fileName;
+                }
+                else
+                {
+                    hotel.ImageUrl = "https://placehold.co/600x400";
+                }
             _unitOfWork.Hotel.Add(hotel);
             _unitOfWork.Save();
             TempData["success"] = "Hotel was created successfully.";
@@ -56,6 +72,27 @@ namespace Villa.Controllers
         {
             if (ModelState.IsValid && hotel.Id >0)
             {
+                if (hotel.Image != null)
+                {
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(hotel.Image.FileName);
+                    string imagePath = Path.Combine(_webHostEnvironment.WebRootPath, @"Images\Hotel_Images");
+
+                    if (!string.IsNullOrEmpty(hotel.ImageUrl))
+                    {
+                        var oldImagePath = Path.Combine(_webHostEnvironment.WebRootPath, hotel.ImageUrl.TrimStart('\\'));
+
+                        if (System.IO.File.Exists(oldImagePath))
+                        {
+                            System.IO.File.Delete(oldImagePath);
+                        }
+                    }
+
+                    using (var fileStream = new FileStream(Path.Combine(imagePath, fileName), FileMode.Create))
+                        hotel.Image.CopyTo(fileStream);
+
+                    hotel.ImageUrl = @"\Images\Hotel_Images\" + fileName;
+                }
+
                 _unitOfWork.Hotel.Update(hotel);
                 _unitOfWork.Save();
                 TempData["success"] = "Hotel was updated successfully.";
