@@ -117,6 +117,16 @@ namespace Villa.Controllers
             Hotel? objfromDB= _unitOfWork.Hotel.Get(h=>h.Id == hotel.Id);
             if (objfromDB is not null)
             {
+
+                if (!string.IsNullOrEmpty(objfromDB.ImageUrl))
+                {
+                    var oldImagePath = Path.Combine(_webHostEnvironment.WebRootPath, objfromDB.ImageUrl.TrimStart('\\'));
+
+                    if (System.IO.File.Exists(oldImagePath))
+                    {
+                        System.IO.File.Delete(oldImagePath);
+                    }
+                }
                 _unitOfWork.Hotel.Remove(objfromDB);
                 _unitOfWork.Save();
                 TempData["success"] = "Hotel was deleted successfully.";
