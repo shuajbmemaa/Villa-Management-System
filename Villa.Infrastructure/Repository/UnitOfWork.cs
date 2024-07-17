@@ -15,11 +15,14 @@ namespace Villa.Infrastructure.Repository
 
         public IHotelNumberRepository HotelNumber {  get; private set; }
 
+        public IAmenityRepository Amenity { get; private set; }
+
         public UnitOfWork(ApplicationDbContext db)
         {
             _db=db;
             Hotel = new HotelRepository(_db);
             HotelNumber= new HotelNumberRepository(_db);
+            Amenity = new AmenityRepository(_db);
         }
 
         public void Save()
