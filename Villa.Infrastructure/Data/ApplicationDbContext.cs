@@ -18,6 +18,8 @@ namespace Villa.Infrastructure.Data
 
         public DbSet<HotelNumber> HotelNumbers { get; set; }
 
+        public DbSet<Amenity> Amenities { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             //base.OnModelCreating(modelBuilder);
@@ -74,6 +76,26 @@ namespace Villa.Infrastructure.Data
                      HotelId = 3
                  }
 
+                );
+            modelBuilder.Entity<Amenity>().HasData(
+                new Amenity
+                {
+                    Id = 1,
+                    HotelId = 1,
+                    Name = "Private Pool"
+                },
+                new Amenity
+                {
+                    Id = 2,
+                    HotelId = 2,
+                    Name = "Private Balcony"
+                },
+                new Amenity
+                {
+                    Id = 3,
+                    HotelId = 3,
+                    Name = "Private Jacuzzi"
+                }
                 );
         }
 
