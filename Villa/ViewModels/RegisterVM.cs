@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations;
 
 namespace Villa.ViewModels
 {
@@ -22,5 +24,11 @@ namespace Villa.ViewModels
         public string? PhoneNumber { get; set; }
 
         public string? RedirectUrl { get; set; }
+
+        public string? Role { get; set; }
+
+        //dropdown per role
+        [ValidateNever]
+        public IEnumerable<SelectListItem>? RoleList { get; set; }
     }
 }
