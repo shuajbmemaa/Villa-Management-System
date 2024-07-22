@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Villa.Application.Common.Interfaces;
+using Villa.Application.Common.Utility;
 using Villa.Domain.Entities;
 using Villa.ViewModels;
 
@@ -39,11 +40,11 @@ namespace Villa.Controllers
 
         public IActionResult Register()
         {
-            if (!_roleManager.RoleExistsAsync("Admin").GetAwaiter().GetResult())
+            if (!_roleManager.RoleExistsAsync(Const.Role_Admin).GetAwaiter().GetResult())
             {
-                _roleManager.CreateAsync(new IdentityRole("Admin")).Wait();//e krijon rolin admin ne aspnetroles
-                _roleManager.CreateAsync(new IdentityRole("Customer")).Wait();//roli customer
-            }
+                _roleManager.CreateAsync(new IdentityRole(Const.Role_Admin)).Wait();//e krijon rolin admin ne aspnetroles
+                _roleManager.CreateAsync(new IdentityRole(Const.Role_Customer)).Wait();//roli customer
+            }//ne klasen Const i marrum konstantet
 
             //dropdown mi shfaq rolet
             RegisterVM registerVM = new ()
@@ -55,6 +56,81 @@ namespace Villa.Controllers
                 })
             };
             return View(registerVM);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Register(RegisterVM registerVM)
+        {
+            User user = new()
+            {
+                Name=registerVM.Name,
+                Email=registerVM.Email,
+                PhoneNumber=registerVM.PhoneNumber,
+                NormalizedEmail=registerVM.Email.ToUpper(),
+                EmailConfirmed=true,
+                UserName=registerVM.Name,
+                CreatedAt=DateTime.Now
+            };//kur e bojna await te metoda shtoheet async
+
+            var result = await _userManager.CreateAsync(user, registerVM.Password);
+            if (result.Succeeded)
+            {
+                if (!string.IsNullOrEmpty(registerVM.Role))
+                {
+                    await _userManager.AddToRoleAsync(user, registerVM.Role);
+                }
+                else
+                {
+                    await _userManager.AddToRoleAsync(user, Const.Role_Customer);
+                }
+                await _signInManager.SignInAsync(user, isPersistent: false);
+                if (string.IsNullOrEmpty(registerVM.RedirectUrl))
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+                else
+                {
+                    return LocalRedirect(registerVM.RedirectUrl);
+                }
+            }
+            foreach(var error in result.Errors)
+            {
+                ModelState.AddModelError("", error.Description);
+            }
+            //dropdown mi shfaq rolet
+            registerVM.RoleList = _roleManager.Roles.Select(x => new SelectListItem
+            {
+                Text = x.Name,
+                Value = x.Name
+            });
+            return View(registerVM);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Login(LoginVM loginVM)
+        {
+            if(ModelState.IsValid)
+            {
+               var result=await _signInManager.PasswordSignInAsync(loginVM.Email,loginVM.Password,loginVM.RememberMe,lockoutOnFailure:false);
+
+                if (result.Succeeded)
+                {
+                    if (string.IsNullOrEmpty(loginVM.RedirectUrl))
+                    {
+                        return RedirectToAction("Index", "Home");
+                    }
+                    else
+                    {
+                        return LocalRedirect(loginVM.RedirectUrl);
+                    }
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Invalid login attempt");
+                }
+            }
+            return View(loginVM);
+
         }
     }
 }
