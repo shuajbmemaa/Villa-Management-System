@@ -38,8 +38,21 @@ namespace Villa.Controllers
             return View(loginVM);
         }
 
-        public IActionResult Register()
+        public IActionResult AccessDenied()
         {
+            return View();
+        }
+
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+            return RedirectToAction("Index", "Home");
+        }
+
+        public IActionResult Register(string returnUrl = null)
+        {
+            returnUrl ??= Url.Content("~/");
+
             if (!_roleManager.RoleExistsAsync(Const.Role_Admin).GetAwaiter().GetResult())
             {
                 _roleManager.CreateAsync(new IdentityRole(Const.Role_Admin)).Wait();//e krijon rolin admin ne aspnetroles
@@ -53,7 +66,8 @@ namespace Villa.Controllers
                 {
                     Text=x.Name,
                     Value=x.Name
-                })
+                }),
+                RedirectUrl = returnUrl
             };
             return View(registerVM);
         }
@@ -61,41 +75,45 @@ namespace Villa.Controllers
         [HttpPost]
         public async Task<IActionResult> Register(RegisterVM registerVM)
         {
-            User user = new()
+            if (ModelState.IsValid)
             {
-                Name=registerVM.Name,
-                Email=registerVM.Email,
-                PhoneNumber=registerVM.PhoneNumber,
-                NormalizedEmail=registerVM.Email.ToUpper(),
-                EmailConfirmed=true,
-                UserName=registerVM.Name,
-                CreatedAt=DateTime.Now
-            };//kur e bojna await te metoda shtoheet async
+                User user = new()
+                {
+                    Name = registerVM.Name,
+                    Email = registerVM.Email,
+                    PhoneNumber = registerVM.PhoneNumber,
+                    NormalizedEmail = registerVM.Email.ToUpper(),
+                    EmailConfirmed = true,
+                    UserName = registerVM.Name,
+                    CreatedAt = DateTime.Now
+                };//kur e bojna await te metoda shtoheet async
 
-            var result = await _userManager.CreateAsync(user, registerVM.Password);
-            if (result.Succeeded)
-            {
-                if (!string.IsNullOrEmpty(registerVM.Role))
+                var result = await _userManager.CreateAsync(user, registerVM.Password);
+                if (result.Succeeded)
                 {
-                    await _userManager.AddToRoleAsync(user, registerVM.Role);
+                    if (!string.IsNullOrEmpty(registerVM.Role))
+                    {
+                        await _userManager.AddToRoleAsync(user, registerVM.Role);
+                    }
+                    else
+                    {
+                        await _userManager.AddToRoleAsync(user, Const.Role_Customer);
+                    }
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    if (string.IsNullOrEmpty(registerVM.RedirectUrl))
+                    {
+                        return RedirectToAction("Index", "Home");
+                    }
+                    else
+                    {
+                        return LocalRedirect(registerVM.RedirectUrl);
+                    }
                 }
-                else
+
+                foreach (var error in result.Errors)
                 {
-                    await _userManager.AddToRoleAsync(user, Const.Role_Customer);
+                    ModelState.AddModelError("", error.Description);
                 }
-                await _signInManager.SignInAsync(user, isPersistent: false);
-                if (string.IsNullOrEmpty(registerVM.RedirectUrl))
-                {
-                    return RedirectToAction("Index", "Home");
-                }
-                else
-                {
-                    return LocalRedirect(registerVM.RedirectUrl);
-                }
-            }
-            foreach(var error in result.Errors)
-            {
-                ModelState.AddModelError("", error.Description);
             }
             //dropdown mi shfaq rolet
             registerVM.RoleList = _roleManager.Roles.Select(x => new SelectListItem

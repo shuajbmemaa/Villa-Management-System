@@ -1,13 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Villa.Application.Common.Interfaces;
+using Villa.Application.Common.Utility;
 using Villa.Domain.Entities;
 using Villa.Infrastructure.Data;
 using Villa.ViewModels;
 
 namespace Villa.Controllers
 {
+    [Authorize(Roles =Const.Role_Admin)] //akses ka vec admini 
     public class AmenityController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;

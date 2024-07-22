@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Villa.Application.Common.Interfaces;
 using Villa.Domain.Entities;
 using Villa.Infrastructure.Data;
 
 namespace Villa.Controllers
 {
+    [Authorize] //nese e len veq authorize pa u bo login nuk mundesh me pas akses te hotel controlleri
     public class HotelController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
