@@ -35,7 +35,7 @@ namespace Villa.Controllers
 
         public IActionResult GetHotelsByDate(int nights,DateOnly checkInDate)
         {
-            var hotelList = _unitOfWork.Hotel.GetAll(includeProperties: "HoteliList").ToList();
+            var hotelList = _unitOfWork.Hotel.GetAll(includeProperties: "HotelAmenity").ToList();
             foreach (var hotel in hotelList)
             {
                 if (hotel.Id % 2 == 0)
@@ -50,7 +50,7 @@ namespace Villa.Controllers
                 Nights = nights
             };
 
-            return View(homeVM);
+            return PartialView("_HotelList",homeVM);//kur dojna me bo reload ni pjes te caktume te faqes e perdorum PartialView 
         }
         public IActionResult Privacy()
         {
