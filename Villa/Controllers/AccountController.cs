@@ -127,19 +127,37 @@ namespace Villa.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginVM loginVM)
         {
-            if(ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-               var result=await _signInManager.PasswordSignInAsync(loginVM.Email,loginVM.Password,loginVM.RememberMe,lockoutOnFailure:false);
-
-                if (result.Succeeded)
+                var user = await _userManager.FindByEmailAsync(loginVM.Email);
+                if (user != null)
                 {
-                    if (string.IsNullOrEmpty(loginVM.RedirectUrl))
+                    if (await _userManager.IsEmailConfirmedAsync(user))
                     {
-                        return RedirectToAction("Index", "Home");
+                        var result = await _signInManager.PasswordSignInAsync(user.UserName, loginVM.Password, loginVM.RememberMe, lockoutOnFailure: false);
+                        if (result.Succeeded)
+                        {
+                            if (string.IsNullOrEmpty(loginVM.RedirectUrl))
+                            {
+                                return RedirectToAction("Index", "Home");
+                            }
+                            else
+                            {
+                                return LocalRedirect(loginVM.RedirectUrl);
+                            }
+                        }
+                        else if (result.IsLockedOut)
+                        {
+                            ModelState.AddModelError("", "Account locked out due to too many failed login attempts");
+                        }
+                        else
+                        {
+                            ModelState.AddModelError("", "Invalid login attempt");
+                        }
                     }
                     else
                     {
-                        return LocalRedirect(loginVM.RedirectUrl);
+                        ModelState.AddModelError("", "Email not confirmed yet");
                     }
                 }
                 else
@@ -148,7 +166,7 @@ namespace Villa.Controllers
                 }
             }
             return View(loginVM);
-
         }
+
     }
 }
