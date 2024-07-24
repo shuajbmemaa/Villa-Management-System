@@ -26,6 +26,32 @@ namespace Villa.Controllers
             return View(homeVM);
         }
 
+        [HttpPost]
+        public IActionResult Index(HomeVM homeVM)
+        {
+            homeVM.HotelList = _unitOfWork.Hotel.GetAll(includeProperties: "HotelAmenity");
+            return View(homeVM);
+        }
+
+        public IActionResult GetHotelsByDate(int nights,DateOnly checkInDate)
+        {
+            var hotelList = _unitOfWork.Hotel.GetAll(includeProperties: "HoteliList").ToList();
+            foreach (var hotel in hotelList)
+            {
+                if (hotel.Id % 2 == 0)
+                {
+                    hotel.IsAvailable = false;
+                }
+            }
+            HomeVM homeVM = new()
+            {
+                CheckInDate = checkInDate,
+                HotelList = hotelList,
+                Nights = nights
+            };
+
+            return View(homeVM);
+        }
         public IActionResult Privacy()
         {
             return View();

@@ -34,5 +34,8 @@ namespace Villa.Domain.Entities
         [ValidateNever]
         public IEnumerable<Amenity> HotelAmenity { get; set; }
 
+        [NotMapped]//kur e vendosum notmapped nuk e krijon atributin ne db vec e marrum me manipulu 
+        public bool IsAvailable { get; set; } = true;
+
     }
 }
