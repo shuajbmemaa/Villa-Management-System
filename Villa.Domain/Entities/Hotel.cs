@@ -32,7 +32,7 @@ namespace Villa.Domain.Entities
         public DateTime? Updated_Date { get;set; }
 
         [ValidateNever]
-        public IEnumerable<Amenity> HotelAmenity { get; set; }
+        public IEnumerable<Amenity> HotelAmenity { get; set; }//HotelAmenity
 
         [NotMapped]//kur e vendosum notmapped nuk e krijon atributin ne db vec e marrum me manipulu 
         public bool IsAvailable { get; set; } = true;
