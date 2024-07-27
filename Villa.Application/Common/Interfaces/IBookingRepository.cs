@@ -12,6 +12,8 @@ namespace Villa.Application.Common.Interfaces
     {
 
         void Update(Booking booking);
+        void UpdateStatus(int bokingId,string status);
+        void UpdateStripePaymentID(int bookingId,string sessionId,string paymentIntentId);
 
     }
 }
