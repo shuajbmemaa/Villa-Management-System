@@ -49,6 +49,14 @@ namespace Villa.Controllers
         }
 
         [Authorize]
+        public IActionResult BookingDetails(int bookingId)
+        {
+            Booking bookingfromDb = _unitOfWork.Booking.Get(u => u.Id == bookingId, includeProperties: "User,Hotel");
+
+            return View(bookingfromDb);
+        }
+
+        [Authorize]
         [HttpPost]
         public IActionResult FinalizeBooking(Booking booking)
         {
