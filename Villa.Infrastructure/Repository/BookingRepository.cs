@@ -26,7 +26,7 @@ namespace Villa.Infrastructure.Repository
             _db.Update(booking);
         }
 
-        public void UpdateStatus(int bokingId, string status)
+        public void UpdateStatus(int bokingId, string status,int hotelNumber=0)
         {
             var bookingFromDb=_db.Bookings.FirstOrDefault(u=>u.Id == bokingId);
             if (bookingFromDb != null)
@@ -34,6 +34,7 @@ namespace Villa.Infrastructure.Repository
                 bookingFromDb.Status = status;
                 if(status == Const.StatusCheckedIn)
                 {
+                    bookingFromDb.VillaNumber = hotelNumber;
                     bookingFromDb.ActualCheckInDate = DateTime.Now;
                 }
                 if (status == Const.StatusCompleted)

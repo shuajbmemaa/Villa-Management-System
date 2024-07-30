@@ -53,7 +53,63 @@ namespace Villa.Controllers
         {
             Booking bookingfromDb = _unitOfWork.Booking.Get(u => u.Id == bookingId, includeProperties: "User,Hotel");
 
-            return View(bookingfromDb);
+            if(bookingfromDb.VillaNumber == 0 && bookingfromDb.Status == Const.StatusApproved)
+            {
+                var availableHotelNr=AvailableHotelNumber(bookingfromDb.HotelId);
+
+                bookingfromDb.HotelNumbers = _unitOfWork.HotelNumber.GetAll(u => u.HotelId == bookingfromDb.HotelId
+                && availableHotelNr.Any(x=>x==u.Hotel_Nr)).ToList();
+            }
+
+            return View(bookingfromDb); 
+        }
+
+        private List<int> AvailableHotelNumber(int hotelId)
+        {
+            List<int> availableHotelNumbers = new();
+            var hotelNumber = _unitOfWork.HotelNumber.GetAll(u => u.HotelId == hotelId);
+
+            var checkedHotel=_unitOfWork.Booking.GetAll(u=> u.Status == Const.StatusCheckedIn && u.HotelId == hotelId)
+                .Select(u=>u.VillaNumber);
+
+            foreach(var hotelNr in hotelNumber)
+            {
+                if(!checkedHotel.Contains(hotelNr.Hotel_Nr))
+                {
+                    availableHotelNumbers.Add(hotelNr.Hotel_Nr);
+                }
+            }
+            return availableHotelNumbers;
+        }
+
+        [HttpPost]
+        [Authorize(Roles = Const.Role_Admin)]
+        public IActionResult CheckIn(Booking booking)
+        {
+            _unitOfWork.Booking.UpdateStatus(booking.Id, Const.StatusCheckedIn,booking.VillaNumber);
+            _unitOfWork.Save();
+            TempData["Success"] = "Booking was updated successfully";
+            return RedirectToAction(nameof(BookingDetails), new {bookingId =  booking.Id});
+        }
+
+        [HttpPost]
+        [Authorize(Roles = Const.Role_Admin)]
+        public IActionResult CheckOut(Booking booking)
+        {
+            _unitOfWork.Booking.UpdateStatus(booking.Id, Const.StatusCompleted, booking.VillaNumber);
+            _unitOfWork.Save();
+            TempData["Success"] = "Booking was completed successfully";
+            return RedirectToAction(nameof(BookingDetails), new { bookingId = booking.Id });
+        }
+
+        [HttpPost]
+        [Authorize(Roles = Const.Role_Admin)]
+        public IActionResult CancelBooking(Booking booking)
+        {
+            _unitOfWork.Booking.UpdateStatus(booking.Id, Const.StatusCancelled,0);
+            _unitOfWork.Save();
+            TempData["Success"] = "Booking was cancelled successfully";
+            return RedirectToAction(nameof(BookingDetails), new { bookingId = booking.Id });
         }
 
         [Authorize]
@@ -64,6 +120,23 @@ namespace Villa.Controllers
             booking.Total =  hotel.Price * booking.Nights;
             booking.Status=Const.StatusPending;
             booking.BookingDate = DateTime.Now;
+
+            var hotelNumberList = _unitOfWork.HotelNumber.GetAll().ToList();
+            var bookedHotels = _unitOfWork.Booking.GetAll(u => u.Status == Const.StatusApproved || u.Status == Const.StatusCheckedIn).ToList();
+
+            
+            int roomAvailable = Const.HotelRoomsAvailable(hotel.Id, hotelNumberList, booking.CheckInDate, booking.Nights, bookedHotels);
+
+            if(roomAvailable == 0)
+            {
+                TempData["error"] = "Dhoma eshte shitur !!";
+                return RedirectToAction(nameof(FinalizeBooking), new
+                {
+                    hotelId = booking.HotelId,
+                    checkInDate = booking.CheckInDate,
+                    nights = booking.Nights
+                });
+            }            
 
             _unitOfWork.Booking.Add(booking);
             _unitOfWork.Save();
@@ -117,7 +190,7 @@ namespace Villa.Controllers
                 Session session = service.Get(bookingfromDb.StripeSessionId);
                 if(session.PaymentStatus == "paid") {
                     //bookingfromDb.Status = Const.StatusApproved;
-                    _unitOfWork.Booking.UpdateStatus(bookingfromDb.Id, Const.StatusApproved);
+                    _unitOfWork.Booking.UpdateStatus(bookingfromDb.Id, Const.StatusApproved,0);
                     _unitOfWork.Booking.UpdateStripePaymentID(bookingfromDb.Id,session.Id, session.PaymentIntentId);
                     _unitOfWork.Save();
                 }
