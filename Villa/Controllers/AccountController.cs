@@ -137,13 +137,27 @@ namespace Villa.Controllers
                         var result = await _signInManager.PasswordSignInAsync(user.UserName, loginVM.Password, loginVM.RememberMe, lockoutOnFailure: false);
                         if (result.Succeeded)
                         {
-                            if (string.IsNullOrEmpty(loginVM.RedirectUrl))
+
+                            //if (User.IsInRole(Const.Role_Admin))
+                            //{
+                            //    return RedirectToAction("Index", "Dashboard");
+                            //}
+
+                            if (await _userManager.IsInRoleAsync(user, Const.Role_Admin))
                             {
-                                return RedirectToAction("Index", "Home");
+                                return RedirectToAction("Index", "Dashboard");
                             }
                             else
                             {
-                                return LocalRedirect(loginVM.RedirectUrl);
+
+                                if (string.IsNullOrEmpty(loginVM.RedirectUrl))
+                                {
+                                    return RedirectToAction("Index", "Home");
+                                }
+                                else
+                                {
+                                    return LocalRedirect(loginVM.RedirectUrl);
+                                }
                             }
                         }
                         else if (result.IsLockedOut)
